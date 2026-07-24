@@ -9,6 +9,7 @@ import { PostCreateInput, PostUpdateInput } from './dto/post.input.js';
 import { paramIdValidation } from '../../core/middlewares/params-id-validation.middleware.js';
 import { postCreateValidation, postUpdateValidation } from './validation/post.validation.js';
 import { inputValidationResultMiddleware } from '../../core/middlewares/input-validation-result.middleware.js';
+import { superAdminGuardMiddleware } from '../../auth/middlewares/super-admin.guard.middleware.js';
 
 export const postsRouter = Router({});
 
@@ -29,28 +30,35 @@ postsRouter
         res.status(HTTP_STATUS.OK_200).send(mapToPostOutput(postId, selectedPost));
     })
 
-    .post('', postCreateValidation, inputValidationResultMiddleware, (req: Request<{}, {}, PostCreateInput>, res: Response) => {
-        const attributes = req.body;
+    .post(
+        '',
+        superAdminGuardMiddleware,
+        postCreateValidation,
+        inputValidationResultMiddleware,
+        (req: Request<{}, {}, PostCreateInput>, res: Response) => {
+            const attributes = req.body;
 
-        if (!db.blogs[attributes.blogId]) {
-            res.status(HTTP_STATUS.NOT_FOUND_404).send(createNotFoundError('blogId'));
-            return;
-        }
+            if (!db.blogs[attributes.blogId]) {
+                res.status(HTTP_STATUS.NOT_FOUND_404).send(createNotFoundError('blogId'));
+                return;
+            }
 
-        const id = Date.now() + Math.floor(Math.random() * 1000);
+            const id = Date.now() + Math.floor(Math.random() * 1000);
 
-        const newPost = {
-            id,
-            ...attributes, // todo: need to trim all user data with type 'string' .trim()
-        };
+            const newPost = {
+                id,
+                ...attributes, // todo: need to trim all user data with type 'string' .trim()
+            };
 
-        db.posts[id] = attributes;
+            db.posts[id] = attributes;
 
-        res.status(HTTP_STATUS.CREATED_201).send(newPost);
-    })
+            res.status(HTTP_STATUS.CREATED_201).send(newPost);
+        },
+    )
 
     .put(
         '/:id',
+        superAdminGuardMiddleware,
         paramIdValidation,
         postUpdateValidation,
         inputValidationResultMiddleware,
@@ -74,7 +82,7 @@ postsRouter
         },
     )
 
-    .delete('/:id', paramIdValidation, inputValidationResultMiddleware, (req: Request<{ id: string }>, res: Response) => {
+    .delete('/:id', superAdminGuardMiddleware, paramIdValidation, inputValidationResultMiddleware, (req: Request<{ id: string }>, res: Response) => {
         const postId = Number(req.params.id);
         const selectedPost = db.posts[postId];
 

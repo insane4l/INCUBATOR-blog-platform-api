@@ -1,11 +1,10 @@
-import express from "express";
-import {setupApp} from "./app-setup.js";
-
-const PORT = process.env.PORT || 3006;
+import express from 'express';
+import { setupApp } from './app-setup.js';
+import { SETTINGS } from './settings/config.js';
 
 const app = express();
 setupApp(app);
 
-app.listen(PORT, () => {
-    console.log(`Blog platform app listening on port ${PORT}`);
+app.listen(SETTINGS.PORT, () => {
+    console.log(`Blog platform app listening on port ${SETTINGS.PORT}`);
 });

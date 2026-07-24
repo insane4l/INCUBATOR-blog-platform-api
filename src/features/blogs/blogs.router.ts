@@ -9,6 +9,7 @@ import { BlogCreateInput, BlogUpdateInput } from './dto/blog.input.js';
 import { paramIdValidation } from '../../core/middlewares/params-id-validation.middleware.js';
 import { blogCreateValidation, blogUpdateValidation } from './validation/blog.validation.js';
 import { inputValidationResultMiddleware } from '../../core/middlewares/input-validation-result.middleware.js';
+import { superAdminGuardMiddleware } from '../../auth/middlewares/super-admin.guard.middleware.js';
 
 export const blogsRouter = Router({});
 
@@ -29,22 +30,29 @@ blogsRouter
         res.status(HTTP_STATUS.OK_200).send(mapToBlogOutput(blogId, selectedBlog));
     })
 
-    .post('', blogCreateValidation, inputValidationResultMiddleware, (req: Request<{}, {}, BlogCreateInput>, res: Response) => {
-        const attributes = req.body;
-        const id = Date.now() + Math.floor(Math.random() * 1000);
+    .post(
+        '',
+        superAdminGuardMiddleware,
+        blogCreateValidation,
+        inputValidationResultMiddleware,
+        (req: Request<{}, {}, BlogCreateInput>, res: Response) => {
+            const attributes = req.body;
+            const id = Date.now() + Math.floor(Math.random() * 1000);
 
-        const newBlog = {
-            id,
-            ...attributes, // todo: need to trim all user data with type 'string' .trim()
-        };
+            const newBlog = {
+                id,
+                ...attributes, // todo: need to trim all user data with type 'string' .trim()
+            };
 
-        db.blogs[id] = attributes;
+            db.blogs[id] = attributes;
 
-        res.status(HTTP_STATUS.CREATED_201).send(newBlog);
-    })
+            res.status(HTTP_STATUS.CREATED_201).send(newBlog);
+        },
+    )
 
     .put(
         '/:id',
+        superAdminGuardMiddleware,
         paramIdValidation,
         blogUpdateValidation,
         inputValidationResultMiddleware,
@@ -62,7 +70,7 @@ blogsRouter
         },
     )
 
-    .delete('/:id', paramIdValidation, inputValidationResultMiddleware, (req: Request<{ id: string }>, res: Response) => {
+    .delete('/:id', superAdminGuardMiddleware, paramIdValidation, inputValidationResultMiddleware, (req: Request<{ id: string }>, res: Response) => {
         const blogId = Number(req.params.id);
         const selectedBlog = db.blogs[blogId];
 
