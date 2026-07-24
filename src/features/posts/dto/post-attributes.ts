@@ -3,5 +3,4 @@ export type PostAttributes = {
     shortDescription: string;
     content: string;
     blogId: number;
-    blogName: string;
 };

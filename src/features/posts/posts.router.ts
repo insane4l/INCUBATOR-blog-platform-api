@@ -2,18 +2,22 @@ import { Router, Request, Response } from 'express';
 import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
 import { PostListOutput } from './dto/post.output.js';
 import { db } from '../../db/in-memory.db.js';
-import { createNotFoundError } from '../../core/utils/error.utils.js';
+import { createNotFoundError } from '../../core/validation/validation-messages.js';
 import { mapToPostListOutput } from './mappers/map-list-post-to-output.js';
 import { mapToPostOutput } from './mappers/map-post-to-output.js';
 import { PostCreateInput, PostUpdateInput } from './dto/post.input.js';
+import { paramIdValidation } from '../../core/middlewares/params-id-validation.middleware.js';
+import { postCreateValidation, postUpdateValidation } from './validation/post.validation.js';
+import { inputValidationResultMiddleware } from '../../core/middlewares/input-validation-result.middleware.js';
 
 export const postsRouter = Router({});
+
 postsRouter
     .get('', (req: Request, res: Response<PostListOutput>) => {
         res.status(HTTP_STATUS.OK_200).send(mapToPostListOutput(db.posts));
     })
 
-    .get('/:id', (req: Request<{ id: string }>, res: Response) => {
+    .get('/:id', paramIdValidation, inputValidationResultMiddleware, (req: Request<{ id: string }>, res: Response) => {
         const postId = Number(req.params.id);
         const selectedPost = db.posts[postId];
 
@@ -25,15 +29,13 @@ postsRouter
         res.status(HTTP_STATUS.OK_200).send(mapToPostOutput(postId, selectedPost));
     })
 
-    .post('', (req: Request<{}, {}, PostCreateInput>, res: Response) => {
+    .post('', postCreateValidation, inputValidationResultMiddleware, (req: Request<{}, {}, PostCreateInput>, res: Response) => {
         const attributes = req.body;
 
-        // const errors = validatePostAttributes(attributes, 'createPost');
-
-        // if (errors.length > 0) {
-        //     res.status(HTTP_STATUS.BAD_REQUEST_400).send(createErrorMessages(errors));
-        //     return;
-        // }
+        if (!db.blogs[attributes.blogId]) {
+            res.status(HTTP_STATUS.NOT_FOUND_404).send(createNotFoundError('blogId'));
+            return;
+        }
 
         const id = Date.now() + Math.floor(Math.random() * 1000);
 
@@ -47,29 +49,32 @@ postsRouter
         res.status(HTTP_STATUS.CREATED_201).send(newPost);
     })
 
-    .put('/:id', (req: Request<{ id: string }, {}, PostUpdateInput>, res: Response) => {
-        const postId = Number(req.params.id);
-        const selectedPost = db.posts[postId];
+    .put(
+        '/:id',
+        paramIdValidation,
+        postUpdateValidation,
+        inputValidationResultMiddleware,
+        (req: Request<{ id: string }, {}, PostUpdateInput>, res: Response) => {
+            const postId = Number(req.params.id);
+            const selectedPost = db.posts[postId];
 
-        if (!selectedPost) {
-            res.status(HTTP_STATUS.NOT_FOUND_404).send(createNotFoundError('id'));
-            return;
-        }
+            if (!selectedPost) {
+                res.status(HTTP_STATUS.NOT_FOUND_404).send(createNotFoundError('id'));
+                return;
+            }
 
-        const attributes = req.body;
+            const attributes = req.body;
+            if (!db.blogs[attributes.blogId]) {
+                res.status(HTTP_STATUS.NOT_FOUND_404).send(createNotFoundError('blogId'));
+                return;
+            }
 
-        // const errors = validatePostAttributes(attributes, 'updatePost');
-        //
-        // if (errors.length > 0) {
-        //     res.status(HTTP_STATUS.BAD_REQUEST_400).send(createErrorMessages(errors));
-        //     return;
-        // }
+            db.posts[postId] = attributes;
+            res.sendStatus(HTTP_STATUS.NO_CONTENT_204);
+        },
+    )
 
-        db.posts[postId] = attributes;
-        res.sendStatus(HTTP_STATUS.NO_CONTENT_204);
-    })
-
-    .delete('/:id', (req: Request<{ id: string }>, res: Response) => {
+    .delete('/:id', paramIdValidation, inputValidationResultMiddleware, (req: Request<{ id: string }>, res: Response) => {
         const postId = Number(req.params.id);
         const selectedPost = db.posts[postId];
 
