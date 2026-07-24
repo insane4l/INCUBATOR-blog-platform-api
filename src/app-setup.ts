@@ -1,8 +1,11 @@
 import express, { Express } from 'express';
 import { HTTP_STATUS } from './core/constants/http-status.constants.js';
 import { testingRouter } from './features/testing/testing.router.js';
-import { blogsRouter } from './features/blogs/blogs.router.js';
-import { postsRouter } from './features/posts/posts.router.js';
+import { blogsRouter } from './features/blogs/routers/blogs.router.js';
+import { postsRouter } from './features/posts/routers/posts.router.js';
+import { BLOGS_PATH } from './features/blogs/constants/blogs.paths.js';
+import { POSTS_PATH } from './features/posts/constants/posts.paths.js';
+import { TESTING_PATH } from './features/testing/constants/testing.paths.js';
 
 export const setupApp = (app: Express) => {
     app.use(express.json());
@@ -11,9 +14,9 @@ export const setupApp = (app: Express) => {
         res.status(HTTP_STATUS.OK_200).send('Blog platform api');
     });
 
-    app.use('/ht_02/api/testing', testingRouter);
-    app.use('/ht_02/api/blogs', blogsRouter);
-    app.use('/ht_02/api/posts', postsRouter);
+    app.use(`/ht_02${TESTING_PATH}`, testingRouter);
+    app.use(`/ht_02${BLOGS_PATH}`, blogsRouter);
+    app.use(`/ht_02${POSTS_PATH}`, postsRouter);
 
     return app;
 };
