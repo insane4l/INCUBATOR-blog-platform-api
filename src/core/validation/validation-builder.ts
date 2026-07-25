@@ -157,5 +157,5 @@ export const buildValidationChain = (requirements: Record<string, AttributeValid
         }
 
         return validator;
-    };);
+    });
 };

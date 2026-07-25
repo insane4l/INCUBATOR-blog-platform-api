@@ -19,7 +19,7 @@ export const postsRepository = {
 
     create(newPost: PostAttributes): PostType {
         const postId = String(Date.now() + Math.floor(Math.random() * 1000));
-        const post = { id: postId, ...newPost };
+        const post = { id: postId, blogName: db.blogs[newPost.blogId].name, ...newPost };
         db.posts[postId] = post;
 
         return post;
