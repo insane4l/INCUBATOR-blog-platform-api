@@ -51,6 +51,11 @@ export const buildValidationChain = (requirements: Record<string, AttributeValid
                 break;
         }
 
+        // trim strings
+        if (field.type === 'string') {
+            validator = validator.trim();
+        }
+
         // string / array / number limits
         if (field.minLength !== undefined) {
             if (field.type === 'string') {
@@ -152,5 +157,5 @@ export const buildValidationChain = (requirements: Record<string, AttributeValid
         }
 
         return validator;
-    });
+    };);
 };
