@@ -4,7 +4,7 @@ import { createNotFoundError } from '../../../../core/validation/validation-mess
 import { blogsRepository } from '../../repositories/blogs.repository.js';
 
 export const deleteBlogHandler = (req: Request<{ id: string }>, res: Response) => {
-    const blogId = Number(req.params.id);
+    const blogId = req.params.id;
     const isBlogDeleted = blogsRepository.delete(blogId);
 
     if (!isBlogDeleted) {

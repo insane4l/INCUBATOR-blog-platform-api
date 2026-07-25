@@ -5,7 +5,7 @@ import { BlogUpdateInput } from '../../dto/blog.input.js';
 import { blogsRepository } from '../../repositories/blogs.repository.js';
 
 export const updateBlogHandler = (req: Request<{ id: string }, {}, BlogUpdateInput>, res: Response) => {
-    const blogId = Number(req.params.id);
+    const blogId = req.params.id;
 
     const isBlogUpdated = blogsRepository.update(blogId, req.body);
 

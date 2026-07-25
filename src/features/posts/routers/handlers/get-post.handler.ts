@@ -5,7 +5,7 @@ import { mapToPostOutput } from '../../mappers/map-post-to-output.js';
 import { postsRepository } from '../../repositories/posts.repository.js';
 
 export const getPostHandler = (req: Request<{ id: string }>, res: Response) => {
-    const postId = Number(req.params.id);
+    const postId = req.params.id;
     const selectedPost = postsRepository.findById(postId);
 
     if (!selectedPost) {

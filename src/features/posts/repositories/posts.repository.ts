@@ -9,7 +9,7 @@ export const postsRepository = {
         return mapToPostListOutput(db.posts);
     },
 
-    findById(postId: number): PostType | null {
+    findById(postId: string): PostType | null {
         if (db.posts[postId]) {
             return mapToPostOutput(postId, db.posts[postId]);
         } else {
@@ -18,14 +18,14 @@ export const postsRepository = {
     },
 
     create(newPost: PostAttributes): PostType {
-        const postId = Date.now() + Math.floor(Math.random() * 1000);
+        const postId = String(Date.now() + Math.floor(Math.random() * 1000));
         const post = { id: postId, ...newPost };
         db.posts[postId] = post;
 
         return post;
     },
 
-    update(postId: number, postData: PostAttributes): boolean {
+    update(postId: string, postData: PostAttributes): boolean {
         const selectedPost = db.posts[postId];
 
         if (!selectedPost) {
@@ -36,7 +36,7 @@ export const postsRepository = {
         return true;
     },
 
-    delete(postId: number): boolean {
+    delete(postId: string): boolean {
         const selectedPost = db.posts[postId];
 
         if (!selectedPost) {

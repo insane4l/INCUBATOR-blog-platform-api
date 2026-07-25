@@ -13,7 +13,7 @@ export const updatePostHandler = (req: Request<{ id: string }, {}, PostUpdateInp
         return;
     }
 
-    const postId = Number(req.params.id);
+    const postId = req.params.id;
     const isPostUpdated = postsRepository.update(postId, req.body);
 
     if (!isPostUpdated) {

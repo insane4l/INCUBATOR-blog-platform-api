@@ -4,7 +4,7 @@ import { createNotFoundError } from '../../../../core/validation/validation-mess
 import { postsRepository } from '../../repositories/posts.repository.js';
 
 export const deletePostHandler = (req: Request<{ id: string }>, res: Response) => {
-    const postId = Number(req.params.id);
+    const postId = req.params.id;
 
     const isPostDeleted = postsRepository.delete(postId);
 

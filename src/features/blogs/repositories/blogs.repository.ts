@@ -9,7 +9,7 @@ export const blogsRepository = {
         return mapToBlogListOutput(db.blogs);
     },
 
-    findById(blogId: number): BlogType | null {
+    findById(blogId: string): BlogType | null {
         if (db.blogs[blogId]) {
             return mapToBlogOutput(blogId, db.blogs[blogId]);
         } else {
@@ -18,14 +18,14 @@ export const blogsRepository = {
     },
 
     create(newBlog: BlogAttributes): BlogType {
-        const blogId = Date.now() + Math.floor(Math.random() * 1000);
+        const blogId = String(Date.now() + Math.floor(Math.random() * 1000));
         const blog = { id: blogId, ...newBlog };
         db.blogs[blogId] = blog;
 
         return blog;
     },
 
-    update(blogId: number, blogData: BlogAttributes): boolean {
+    update(blogId: string, blogData: BlogAttributes): boolean {
         const selectedBlog = db.blogs[blogId];
 
         if (!selectedBlog) {
@@ -36,7 +36,7 @@ export const blogsRepository = {
         return true;
     },
 
-    delete(blogId: number): boolean {
+    delete(blogId: string): boolean {
         const selectedBlog = db.blogs[blogId];
 
         if (!selectedBlog) {
