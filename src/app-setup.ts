@@ -14,9 +14,9 @@ export const setupApp = (app: Express) => {
         res.status(HTTP_STATUS.OK_200).send('Blog platform api');
     });
 
-    app.use(`/ht_02${TESTING_PATH}`, testingRouter);
-    app.use(`/ht_02${BLOGS_PATH}`, blogsRouter);
-    app.use(`/ht_02${POSTS_PATH}`, postsRouter);
+    app.use(TESTING_PATH, testingRouter);
+    app.use(BLOGS_PATH, blogsRouter);
+    app.use(POSTS_PATH, postsRouter);
 
     return app;
 };
